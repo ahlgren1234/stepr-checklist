@@ -1,3 +1,5 @@
+import { loadCompleted, saveCompleted } from './storage.js';
+
 /** A step as defined by the consumer. */
 export interface ChecklistStep {
   /** Stable, non-empty identifier, unique within one checklist. */
@@ -43,6 +45,15 @@ export interface ChecklistControllerOptions {
   readonly steps: readonly ChecklistStep[];
   /** Consumer callback, called after every state change. */
   readonly onChange?: ChecklistListener;
+  /**
+   * Opts in to `localStorage` persistence under this key. Completed step ids
+   * are restored on creation (ids of steps that no longer exist are ignored)
+   * and saved after every change. Without a key, state is memory-only.
+   *
+   * Storage is per origin and per browser; it is not synced across devices.
+   * Storage failures are ignored and the checklist keeps working in memory.
+   */
+  readonly storageKey?: string;
 }
 
 export interface ChecklistController {
@@ -86,8 +97,10 @@ export interface ChecklistController {
 /**
  * Creates an independent, DOM-free checklist state controller.
  *
- * All steps start incomplete.
- * @throws {Error} If a step id is empty or duplicated.
+ * Steps start incomplete, unless restored from `storageKey`. Restoring does
+ * not trigger `onChange`; read the initial state with `getState()`.
+ * @throws {Error} If a step id is empty or duplicated, or `storageKey` is an
+ * empty string.
  */
 export function createChecklistController(
   options: ChecklistControllerOptions,
@@ -103,9 +116,18 @@ export function createChecklistController(
     steps.set(step.id, { ...step });
   }
 
+  const { onChange, storageKey } = options;
+  if (storageKey === '') {
+    throw new Error('Checklist storageKey must be a non-empty string');
+  }
+
   const completed = new Set<string>();
+  if (storageKey !== undefined) {
+    for (const id of loadCompleted(storageKey)) {
+      if (steps.has(id)) completed.add(id);
+    }
+  }
   const listeners = new Set<ChecklistListener>();
-  const { onChange } = options;
 
   const getStep = (id: string): ChecklistStep => {
     const step = steps.get(id);
@@ -129,10 +151,12 @@ export function createChecklistController(
     progress: getProgress(),
   });
 
-  // Listeners registered when the change happened are called in order, even
-  // if an earlier one throws; errors are rethrown afterwards so they are not
-  // silently swallowed.
-  const notify = (): void => {
+  // Called after every change. State is saved before listeners run, so a
+  // throwing listener cannot prevent persistence. Listeners registered when
+  // the change happened are called in order, even if an earlier one throws;
+  // errors are rethrown afterwards so they are not silently swallowed.
+  const commit = (): void => {
+    if (storageKey !== undefined) saveCompleted(storageKey, completed);
     const state = getState();
     const targets = onChange ? [onChange, ...listeners] : [...listeners];
     const errors: unknown[] = [];
@@ -154,19 +178,19 @@ export function createChecklistController(
       getStep(id);
       if (completed.has(id)) return false;
       completed.add(id);
-      notify();
+      commit();
       return true;
     },
     uncomplete(id) {
       getStep(id);
       if (!completed.delete(id)) return false;
-      notify();
+      commit();
       return true;
     },
     reset() {
       if (completed.size === 0) return false;
       completed.clear();
-      notify();
+      commit();
       return true;
     },
     click(id) {

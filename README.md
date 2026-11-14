@@ -3,8 +3,8 @@
 Lightweight, framework-agnostic onboarding checklist widget for the web.
 
 > **Status: pre-release.** The package is `private` and not published. Only the
-> checklist state controller exists so far (no widget UI yet), and the public
-> API is **provisional** —
+> checklist state controller and optional persistence exist so far (no widget
+> UI yet), and the public API is **provisional** —
 > expect breaking changes until v0.1.0.
 
 ## Intended scope
@@ -69,7 +69,40 @@ Behavior details:
   the state change itself is kept.
 - **Instances** are fully independent; there is no shared module state.
 - Steps are copied on creation, and snapshots are fresh objects, so mutating
-  either does not affect the controller. All steps start incomplete.
+  either does not affect the controller. All steps start incomplete unless
+  restored from storage (see below).
+
+## Persistence
+
+Pass `storageKey` to save progress in `localStorage`. Without it, the
+controller is memory-only and never touches storage.
+
+```ts
+const checklist = createChecklistController({
+  steps,
+  storageKey: 'my-app:onboarding',
+});
+```
+
+- **Restoring:** completed step ids are read once, when the controller is
+  created. Ids of steps that no longer exist are ignored. Restoring does not
+  call `onChange` or subscribers; read the initial state with `getState()`.
+- **Saving:** the completed ids are written after every change made by
+  `complete`, `uncomplete` or `reset`, before listeners are notified. No-op
+  actions and `click` do not write.
+- **Format:** `{"v":1,"completed":["id", ...]}` under the exact key you pass.
+  Choose an app-specific key to avoid collisions with other scripts on the
+  same origin. An empty `storageKey` throws.
+- **Failures are non-fatal:** if `localStorage` is unavailable or blocked, the
+  stored value is malformed or from an unknown format version, or a write fails
+  (e.g. quota exceeded), the checklist silently continues in memory. Malformed
+  data is treated as "nothing stored".
+- **Scope:** storage is per origin and per browser profile. It is not synced
+  across devices, and controllers sharing a key in different tabs do not update
+  each other live (the last write wins).
+- `localStorage` is only accessed when a controller with a `storageKey` is
+  created or changed, never on import, so the package is safe to import during
+  server-side rendering.
 
 ## Assumptions
 
