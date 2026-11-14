@@ -5,7 +5,7 @@ based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project follows [Semantic Versioning](https://semver.org/). While the version
 is 0.x, a minor release may contain breaking changes.
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-11-14
 
 First public release.
 
