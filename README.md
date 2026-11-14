@@ -2,10 +2,11 @@
 
 Lightweight, framework-agnostic onboarding checklist widget for the web.
 
-> **Status: pre-release.** The package is `private` and not published. The
-> checklist widget, state controller, optional persistence and a local demo
-> exist. The public API is **provisional** — expect breaking changes until
-> v0.1.0.
+> **Status: v0.1.0, the first public release.** It contains the checklist
+> widget, the state controller and optional persistence. Versions follow
+> [semver](https://semver.org/) for 0.x: a **minor** release (0.2.0) may
+> contain breaking changes, a patch release won't. See the
+> [changelog](CHANGELOG.md).
 
 `@stepr/checklist` is a small, dependency-free onboarding checklist widget
 that works with any framework, or none. Steps are native buttons. Your app
@@ -15,7 +16,8 @@ decides when a step is complete, and progress can optionally be saved in
 - [Demo](#demo) · [Quick start](#quick-start) · [Widget](#checklist-widget) ·
   [Controller](#checklist-controller) · [Persistence](#persistence) ·
   [Examples](#examples) · [Stepr integration](#starting-a-stepr-tour-from-a-step)
-  · [Limitations](#limitations) · [Browser support](#browser-support)
+  · [Limitations](#limitations) · [Browser support](#browser-support) ·
+  [License](#license)
 
 ## Demo
 
@@ -42,11 +44,13 @@ and `node_modules/stepr/dist/`. It refuses every other path, including
 
 ## Quick start
 
-The package isn't published yet. To try it in another project, build a tarball
-with `pnpm build && pnpm pack` and install the resulting
-`stepr-checklist-0.0.0.tgz`. With a bundler, `import` it as usual. Without
-one, map the package name in an [import map][import-maps] and serve the page
-over HTTP, because ES modules don't load from `file://`:
+```sh
+npm install @stepr/checklist
+```
+
+With a bundler, `import` it as usual. Without one, map the package name in an
+[import map][import-maps] and serve the page over HTTP, because ES modules
+don't load from `file://`:
 
 <!-- example: quickstart -->
 
@@ -165,6 +169,9 @@ Behavior:
   announced without moving focus. The `<progress>` bar is labelled by it.
 - Focus is shown with a visible `:focus-visible` outline; targets are at least
   44px tall; transitions are disabled under `prefers-reduced-motion`.
+- With the default colors, the incomplete and completed step markers have at
+  least 3:1 contrast against the widget and hover backgrounds (see
+  [Styling](#styling)).
 - No dialog, ARIA widget roles or custom key handling: only native elements.
 
 What has been verified: the structure above (roles, names, live region,
@@ -183,20 +190,20 @@ rules of equal specificity win) and uses BEM-style classes such as
 completed steps have a `data-completed` attribute. Theme it with these custom
 properties on `.stepr-checklist` or any ancestor:
 
-| Property                              | Default   | Used for                                        |
-| ------------------------------------- | --------- | ----------------------------------------------- |
-| `--stepr-checklist-accent`            | `#2563eb` | Completed marker, progress bar (`accent-color`) |
-| `--stepr-checklist-accent-foreground` | `#ffffff` | Check mark glyph                                |
-| `--stepr-checklist-background`        | `#ffffff` | Widget background                               |
-| `--stepr-checklist-foreground`        | `#1f2937` | Text                                            |
-| `--stepr-checklist-muted`             | `#4b5563` | Progress text, completed labels                 |
-| `--stepr-checklist-border`            | `#d1d5db` | Widget border, incomplete marker ring           |
-| `--stepr-checklist-hover`             | `#f3f4f6` | Step background on hover                        |
-| `--stepr-checklist-focus`             | `#2563eb` | Focus outline                                   |
-| `--stepr-checklist-radius`            | `0.5rem`  | Widget corner radius (steps use 75% of it)      |
-| `--stepr-checklist-padding`           | `1rem`    | Widget padding                                  |
-| `--stepr-checklist-gap`               | `0.5rem`  | Spacing between parts (steps use half of it)    |
-| `--stepr-checklist-font-family`       | `inherit` | Font                                            |
+| Property                              | Default   | Used for                                                |
+| ------------------------------------- | --------- | ------------------------------------------------------- |
+| `--stepr-checklist-accent`            | `#2563eb` | Completed marker, progress bar (`accent-color`)         |
+| `--stepr-checklist-accent-foreground` | `#ffffff` | Check mark glyph                                        |
+| `--stepr-checklist-background`        | `#ffffff` | Widget background                                       |
+| `--stepr-checklist-foreground`        | `#1f2937` | Text                                                    |
+| `--stepr-checklist-muted`             | `#4b5563` | Progress text, completed labels, incomplete marker ring |
+| `--stepr-checklist-border`            | `#d1d5db` | Widget border                                           |
+| `--stepr-checklist-hover`             | `#f3f4f6` | Step background on hover                                |
+| `--stepr-checklist-focus`             | `#2563eb` | Focus outline                                           |
+| `--stepr-checklist-radius`            | `0.5rem`  | Widget corner radius (steps use 75% of it)              |
+| `--stepr-checklist-padding`           | `1rem`    | Widget padding                                          |
+| `--stepr-checklist-gap`               | `0.5rem`  | Spacing between parts (steps use half of it)            |
+| `--stepr-checklist-font-family`       | `inherit` | Font                                                    |
 
 <!-- example: theme -->
 
@@ -214,11 +221,21 @@ properties on `.stepr-checklist` or any ancestor:
 
 With `injectStyles: false`, include the exported `checklistCss` string (or
 your own styles) yourself, for example in a `<style>` with a CSP nonce or a
-shadow root. Check contrast when you change colors: the default border
-(`#d1d5db` on white, about 1.5:1) is also the incomplete marker's ring, which is
-below the 3:1 that WCAG 1.4.11 asks of non-text indicators. A step's state is
-also conveyed by its accessible name and the progress text; visually it is
-shown only by the marker and the muted label color.
+shadow root.
+
+Check contrast when you change colors. A step's state is conveyed by its
+accessible name and the progress text, but visually only by the marker and the
+muted label color, so the marker should keep at least the 3:1 that WCAG 2.2
+SC 1.4.11 asks of non-text indicators against both `background` and `hover`:
+
+- The incomplete marker ring uses `muted` (default `#4b5563`: 7.6:1 on the
+  default background, 6.9:1 on the hover color).
+- The completed marker is filled with `accent` (default `#2563eb`: 5.2:1 and
+  4.7:1).
+- The widget border (`#d1d5db`, about 1.5:1) is decorative and doesn't convey
+  state.
+
+`test/styles.test.ts` checks these default ratios.
 
 ## Checklist controller
 
@@ -426,7 +443,7 @@ const checklist = createChecklist({
 
 ## Limitations
 
-- **Pre-release and unpublished.** The API may change before v0.1.0.
+- **Early 0.x release.** Minor versions may contain breaking changes.
 - **Steps are fixed at creation.** To add, remove or relabel steps, `destroy()`
   the widget and create a new one. Labels are plain text; there are no
   descriptions, icons or links inside steps.
@@ -485,9 +502,13 @@ screen reader. See [docs/manual-testing.md](docs/manual-testing.md).
 - **ESM only.** Published as native ES modules with TypeScript declarations;
   no CommonJS build. CommonJS consumers can use dynamic `import()`.
 - **No runtime dependencies.** Development tooling only.
-- **Browser-first.** Compiled to ES2022 for modern browsers; Node.js is only used for tooling and tests.
-- **Node.js 24** (see `.nvmrc`) and **pnpm** (version pinned via `packageManager`;
-  enable with `corepack enable`).
+- **Browser-first.** Compiled to ES2022 for modern browsers. The package
+  declares no Node.js `engines` requirement, since it only needs Node.js when
+  imported during server-side rendering or tests (verified with Node.js 24 and
+  26).
+- **Development** uses **Node.js 24** (see `.nvmrc`; CI uses the same) and
+  **pnpm** (version pinned via `packageManager`; enable with
+  `corepack enable`).
 - **TypeScript 6.0.x**, since `typescript-eslint` does not yet support TypeScript 7.
 - The build is plain `tsc`; a bundler can be introduced later if needed.
 
@@ -512,7 +533,14 @@ pnpm demo           # build, then serve the demo at http://localhost:4173/demo/
 runs every check on pull requests and pushes to `main`; it never publishes or
 deploys.
 
+`pnpm pack` builds `dist/` first (`prepack`). Releases are published by hand;
+see [docs/releasing.md](docs/releasing.md).
+
 ## Contributing
 
 Work on a feature branch, run `pnpm check` before opening a pull request, and
 reference the relevant issue.
+
+## License
+
+[MIT](LICENSE) © Peter Anyawantana
