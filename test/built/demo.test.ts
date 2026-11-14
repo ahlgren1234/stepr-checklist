@@ -254,3 +254,95 @@ describe('demo', () => {
     );
   });
 });
+
+describe('install command', () => {
+  const COMMAND = 'npm install @stepr/checklist';
+  const setClipboard = (value: unknown) => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value,
+    });
+  };
+  const status = () => $('#install-status').textContent;
+  const copied = () => $('#install-copy').classList.contains('is-copied');
+
+  afterEach(() => {
+    vi.useRealTimers();
+    setClipboard(undefined);
+    getSelection()?.removeAllRanges();
+  });
+
+  it('is an accessible button next to the README command', async () => {
+    await loadDemo();
+    const button = $('#install-copy', HTMLButtonElement);
+    expect(button.type).toBe('button');
+    expect(button.getAttribute('aria-label')).toBe('Copy install command');
+    expect(button.textContent.trim()).toBe('Copy'); // visible label in name
+    expect($('#install-status').getAttribute('role')).toBe('status');
+    expect(status()).toBe('');
+    expect($('#install-command').textContent).toBe(COMMAND);
+    expect(readFileSync(join(root, 'README.md'), 'utf8')).toContain(COMMAND);
+  });
+
+  it('copies the command and shows "Copied!" for 2 seconds', async () => {
+    vi.useFakeTimers();
+    await loadDemo();
+    const writeText = vi.fn(() => Promise.resolve());
+    setClipboard({ writeText });
+
+    click('#install-copy');
+    await vi.waitFor(() => {
+      expect(status()).toBe('Copied!');
+    });
+    expect(writeText).toHaveBeenCalledExactlyOnceWith(COMMAND);
+    expect(copied()).toBe(true);
+
+    vi.advanceTimersByTime(2000);
+    expect(status()).toBe('');
+    expect(copied()).toBe(false);
+  });
+
+  it.each([
+    [
+      'the copy is rejected',
+      { writeText: () => Promise.reject(new Error('denied')) },
+    ],
+    ['the Clipboard API is missing', undefined],
+  ])('selects the command and explains when %s', async (_, clipboard) => {
+    await loadDemo();
+    setClipboard(clipboard);
+
+    click('#install-copy');
+    await vi.waitFor(() => {
+      expect(status()).toMatch(/^Couldn't copy automatically\./);
+    });
+    expect(status()).toContain('Control+C');
+    expect(copied()).toBe(false);
+    expect(getSelection()?.toString()).toBe(COMMAND);
+  });
+
+  it('reports only the latest of several quick clicks', async () => {
+    await loadDemo();
+    let finishFirst = () => {};
+    const writeText = vi
+      .fn<() => Promise<void>>()
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishFirst = resolve;
+        }),
+      )
+      .mockRejectedValueOnce(new Error('denied'));
+    setClipboard({ writeText });
+
+    click('#install-copy');
+    click('#install-copy');
+    await vi.waitFor(() => {
+      expect(status()).toMatch(/^Couldn't copy/);
+    });
+    finishFirst();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(status()).toMatch(/^Couldn't copy/);
+    expect(copied()).toBe(false);
+  });
+});
