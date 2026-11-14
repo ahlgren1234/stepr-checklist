@@ -2,3 +2,4 @@ dist
 coverage
 pnpm-lock.yaml
 test/built/.examples
+_site
