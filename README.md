@@ -21,11 +21,15 @@ decides when a step is complete, and progress can optionally be saved in
 
 ## Demo
 
+**Live demo: <https://ahlgren1234.github.io/stepr-checklist/>**
+
 The [`demo/`](demo/) folder has an interactive page with no framework. It
 shows a made-up app whose onboarding steps are completed by app events,
 programmatic completion, `reset()`, `destroy()`, opt-in persistence, themes, a
 [Stepr](https://github.com/ahlgren1234/stepr) tour started from a step, and
 the README examples with copy buttons.
+
+To run it locally:
 
 ```sh
 pnpm install
@@ -36,11 +40,33 @@ The demo imports the **built package** (`dist/`) through an import map, using
 the same `import … from '@stepr/checklist'` as the examples. Stepr is a
 `devDependency` used only by the demo. It is not a dependency of the package.
 `pnpm test:built` runs the demo and the README examples against `dist/` in
-jsdom. The demo isn't deployed anywhere. The local server
+jsdom. The local server
 ([`scripts/serve-demo.mjs`](scripts/serve-demo.mjs)) listens on `127.0.0.1`
 only, and serves just the `.html`, `.css` and `.js` files in `demo/`, `dist/`
 and `node_modules/stepr/dist/`. It refuses every other path, including
 `.git`, `.env` and config files.
+
+### Deployment
+
+Every push to `main` deploys the demo to GitHub Pages with
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml). The workflow can
+also be started by hand from the Actions tab. It runs `pnpm check`, then
+`pnpm build:pages`, which builds `dist/` and runs
+[`scripts/build-pages.mjs`](scripts/build-pages.mjs) to assemble a static
+site in `_site/` with no bundler:
+
+- `index.html`, `smoke.html`, `main.js` and `demo.css` from `demo/`, at the
+  site root
+- `dist/`: the built package's `.js` files
+- `vendor/stepr/`: Stepr's `.js` files and license, copied from
+  `node_modules`
+
+The script rewrites the demo's two `../` import paths to `./dist/` and
+`./vendor/stepr/`. All paths are relative, so the site works under the
+`/stepr-checklist/` base path. `pnpm test:built` builds the site and checks
+that every stylesheet, script and module it loads exists inside it. To
+preview the site, serve `_site/` with any static server. The workflow only
+deploys the demo; it never publishes to npm.
 
 ## Quick start
 
@@ -527,11 +553,12 @@ pnpm test:built     # run the demo and README examples against dist/ (jsdom)
 pnpm check:package  # publint + attw + install/import the packed tarball in a clean consumer
 pnpm check          # all of the above, as run in CI
 pnpm demo           # build, then serve the demo at http://localhost:4173/demo/
+pnpm build:pages    # build, then assemble the GitHub Pages site in _site/
 ```
 
 `pnpm test:built` and `pnpm check:package` require a prior `pnpm build`. CI
 runs every check on pull requests and pushes to `main`; it never publishes or
-deploys.
+deploys. A separate workflow deploys the demo (see [Deployment](#deployment)).
 
 `pnpm pack` builds `dist/` first (`prepack`). Releases are published by hand;
 see [docs/releasing.md](docs/releasing.md).

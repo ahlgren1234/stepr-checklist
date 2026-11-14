@@ -12,6 +12,8 @@
     <!--
       The demo imports the built package exactly as an app would. Run
       `pnpm demo` (builds dist/ first) and open http://localhost:4173/demo/.
+      For GitHub Pages, scripts/build-pages.mjs rewrites these two paths to
+      ./dist/ and ./vendor/stepr/.
       "stepr" is the separate tour library, installed as a devDependency for
       this demo only; @stepr/checklist does not depend on it.
     -->
@@ -31,7 +33,7 @@
     <header class="hero">
       <div class="wrap">
         <p class="eyebrow">
-          <code>@stepr/checklist</code> <span class="badge">pre-release</span>
+          <code>@stepr/checklist</code> <span class="badge">v0.1.0</span>
         </p>
         <h1>Onboarding checklists that stay out of your way</h1>
         <p class="lede">
@@ -533,8 +535,12 @@ const checklist = createChecklist({
       <div class="wrap">
         <p>
           <code>@stepr/checklist</code> is at v0.1.0, an early 0.x release:
-          minor versions may contain breaking changes. This page is the demo in
-          the repository and is not deployed anywhere.
+          minor versions may contain breaking changes. This demo is built from
+          the
+          <a href="https://github.com/ahlgren1234/stepr-checklist"
+            >repository</a
+          >
+          and published to GitHub Pages from <code>main</code>.
         </p>
       </div>
     </footer>

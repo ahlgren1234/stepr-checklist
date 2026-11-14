@@ -1,8 +1,11 @@
 # Releasing
 
 `@stepr/checklist` is published to npm **by hand**, by a maintainer, after an
-explicit approval. Nothing in this repository publishes automatically: CI
-only runs checks, and there are no publish, tag, release or deploy workflows.
+explicit approval. Nothing in this repository publishes to npm: CI only runs
+checks, and there are no publish, tag or release workflows. The only
+deployment is the demo, which
+[`pages.yml`](../.github/workflows/pages.yml) deploys to GitHub Pages from
+`main` (see the README's Deployment section).
 
 ## v0.1.0 release candidate status
 

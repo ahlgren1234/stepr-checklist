@@ -16,6 +16,9 @@ It takes about 10 minutes. Record release results in
    ES modules don't load from `file://`.
 3. Then repeat the keyboard and display checks briefly on the full demo,
    <http://localhost:4173/demo/>, which adds forms, a Stepr tour and theming.
+   After a deployment, the same pages are live at
+   <https://ahlgren1234.github.io/stepr-checklist/> and
+   <https://ahlgren1234.github.io/stepr-checklist/smoke.html>.
 
 ## Keyboard (any browser)
 

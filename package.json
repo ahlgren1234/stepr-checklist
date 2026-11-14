@@ -48,6 +48,7 @@
     "test:watch": "vitest",
     "test:built": "vitest run --config vitest.built.config.ts",
     "demo": "pnpm build && node scripts/serve-demo.mjs",
+    "build:pages": "pnpm build && node scripts/build-pages.mjs",
     "check:package": "publint --strict && attw --pack . --profile esm-only && node scripts/smoke-import.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build && pnpm test:built && pnpm check:package"
   },
