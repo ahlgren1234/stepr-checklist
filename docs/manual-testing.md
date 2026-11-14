@@ -7,8 +7,9 @@ It takes about 10 minutes.
 
 ## Setup
 
-1. `pnpm demo`. This builds `dist/` and serves the repository at
-   <http://localhost:4173/> (set `PORT` to change the port).
+1. `pnpm demo`. This builds `dist/` and serves the demo at
+   <http://localhost:4173/> (set `PORT` to change the port). Only `demo/`,
+   `dist/` and Stepr's `dist/` are served.
 2. Open <http://localhost:4173/demo/smoke.html> for the checks below. The page
    is [`demo/smoke.html`](../demo/smoke.html) and imports `../dist/index.js`.
    ES modules don't load from `file://`.

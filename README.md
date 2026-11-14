@@ -34,7 +34,11 @@ The demo imports the **built package** (`dist/`) through an import map, using
 the same `import … from '@stepr/checklist'` as the examples. Stepr is a
 `devDependency` used only by the demo. It is not a dependency of the package.
 `pnpm test:built` runs the demo and the README examples against `dist/` in
-jsdom. The demo isn't deployed anywhere.
+jsdom. The demo isn't deployed anywhere. The local server
+([`scripts/serve-demo.mjs`](scripts/serve-demo.mjs)) listens on `127.0.0.1`
+only, and serves just the `.html`, `.css` and `.js` files in `demo/`, `dist/`
+and `node_modules/stepr/dist/`. It refuses every other path, including
+`.git`, `.env` and config files.
 
 ## Quick start
 
