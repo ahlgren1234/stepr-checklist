@@ -326,6 +326,47 @@ for (const radio of document.querySelectorAll('input[name="theme"]')) {
   });
 }
 
+// --- Install command: copy button ---------------------------------------------
+
+const installCopy = $('#install-copy');
+const installStatus = $('#install-status');
+const installCommand = $('#install-command');
+let installAttempt = 0;
+let installTimer;
+
+const showInstallResult = (message, copied) => {
+  installStatus.textContent = message;
+  installCopy.classList.toggle('is-copied', copied);
+};
+
+installCopy.addEventListener('click', async () => {
+  // Only the latest click may report, if an earlier copy settles late.
+  const attempt = ++installAttempt;
+  clearTimeout(installTimer);
+  showInstallResult('', false);
+  try {
+    // `navigator.clipboard` is missing on insecure origins, which throws here.
+    await navigator.clipboard.writeText(installCommand.textContent);
+    if (attempt !== installAttempt) return;
+    showInstallResult('Copied!', true);
+    installTimer = setTimeout(() => {
+      showInstallResult('', false);
+    }, 2000);
+  } catch {
+    if (attempt !== installAttempt) return;
+    // Select the command so a keyboard shortcut copies it.
+    const range = document.createRange();
+    range.selectNodeContents(installCommand);
+    const selection = getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    showInstallResult(
+      "Couldn't copy automatically. The command is selected: press Control+C (Command+C on a Mac) to copy it.",
+      false,
+    );
+  }
+});
+
 // --- Examples: copy buttons --------------------------------------------------
 
 const copyStatus = $('#copy-status');

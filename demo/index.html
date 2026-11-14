@@ -42,6 +42,40 @@
           politely, and it only completes a step when your app says the work is
           done.
         </p>
+        <div class="install">
+          <div class="install__row">
+            <span class="install__prompt" aria-hidden="true">$</span>
+            <code id="install-command">npm install @stepr/checklist</code>
+            <button
+              type="button"
+              class="install__copy"
+              id="install-copy"
+              aria-label="Copy install command"
+            >
+              <svg
+                class="install__icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect x="9" y="9" width="12" height="12" rx="2" />
+                <path
+                  d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"
+                />
+              </svg>
+              <svg
+                class="install__check"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M4 12l5 5L20 6" />
+              </svg>
+              Copy
+            </button>
+          </div>
+          <p class="install__status" id="install-status" role="status"></p>
+        </div>
         <nav class="hero-nav" aria-label="Page sections">
           <a href="#demo">Live demo</a>
           <a href="#examples">Examples</a>
