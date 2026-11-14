@@ -4,3 +4,6 @@ coverage/
 *.tgz
 *.log
 .DS_Store
+
+# Local manual smoke-test page (docs/manual-testing.md)
+/smoke.html

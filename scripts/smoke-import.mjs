@@ -43,7 +43,9 @@ try {
 
   writeFileSync(
     join(consumer, 'index.js'),
-    `import { createChecklistController } from '@stepr/checklist';
+    `import { createChecklist, createChecklistController } from '@stepr/checklist';
+// Importing must be safe without a DOM (e.g. server-side rendering).
+if (typeof createChecklist !== 'function') throw new Error('missing createChecklist');
 const checklist = createChecklistController({ steps: [{ id: 'a', label: 'A' }] });
 checklist.complete('a');
 const { completed, total } = checklist.getProgress();
@@ -56,14 +58,18 @@ console.log('runtime import ok');
   writeFileSync(
     join(consumer, 'index.ts'),
     `import {
+  createChecklist,
   createChecklistController,
+  type Checklist,
   type ChecklistController,
   type ChecklistStep,
 } from '@stepr/checklist';
 const steps: ChecklistStep[] = [{ id: 'a', label: 'A' }];
 const checklist: ChecklistController = createChecklistController({ steps });
 const total: number = checklist.getProgress().total;
-export { total };
+const render = (container: HTMLElement): Checklist =>
+  createChecklist({ container, title: 'T', steps });
+export { total, render };
 `,
   );
   run(
@@ -76,6 +82,8 @@ export { total };
       'nodenext',
       '--moduleResolution',
       'nodenext',
+      '--lib',
+      'es2022,dom',
       'index.ts',
     ],
     consumer,
