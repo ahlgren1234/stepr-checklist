@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@stepr/checklist demo</title>
+    <meta
+      name="description"
+      content="Interactive demo and developer guide for @stepr/checklist, a lightweight framework-agnostic onboarding checklist widget."
+    />
+    <link rel="stylesheet" href="./demo.css" />
+    <!--
+      The demo imports the built package exactly as an app would. Run
+      `pnpm demo` (builds dist/ first) and open http://localhost:4173/demo/.
+      "stepr" is the separate tour library, installed as a devDependency for
+      this demo only; @stepr/checklist does not depend on it.
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@stepr/checklist": "../dist/index.js",
+          "stepr": "../node_modules/stepr/dist/index.js"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="hero">
+      <div class="wrap">
+        <p class="eyebrow">
+          <code>@stepr/checklist</code> <span class="badge">pre-release</span>
+        </p>
+        <h1>Onboarding checklists that stay out of your way</h1>
+        <p class="lede">
+          A small, dependency-free checklist widget for any web app, with or
+          without a framework. It renders native buttons and announces progress
+          politely, and it only completes a step when your app says the work is
+          done.
+        </p>
+        <nav class="hero-nav" aria-label="Page sections">
+          <a href="#demo">Live demo</a>
+          <a href="#examples">Examples</a>
+          <a href="#reference">Reference</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="demo" class="section wrap" aria-labelledby="demo-title">
+        <h2 id="demo-title">Live demo</h2>
+        <p class="section-intro">
+          Acme is a made-up project tool. Open a step from the checklist or use
+          the app's toolbar. Each step is completed by the app event that
+          finishes it, such as saving a form or finishing a tour, not by the
+          click that opens it.
+        </p>
+
+        <div class="demo-grid">
+          <div class="app" aria-label="Acme example app" role="group">
+            <div class="app__bar">
+              <span class="app__dots" aria-hidden="true"
+                ><span></span><span></span><span></span
+              ></span>
+              <span class="app__name">Acme Projects</span>
+              <span class="app__setup" id="setup-pill">Setup 0/0</span>
+            </div>
+            <div class="app__toolbar">
+              <button type="button" class="btn" id="app-profile">
+                Edit profile
+              </button>
+              <button type="button" class="btn" id="app-new-project">
+                New project
+              </button>
+              <button type="button" class="btn" id="app-invite">
+                Invite teammate
+              </button>
+            </div>
+
+            <div class="app__body">
+              <div class="app__empty" id="app-empty">
+                <p class="app__empty-title">Welcome to Acme</p>
+                <p>
+                  Nothing here yet. Open a step in the checklist to set up your
+                  workspace.
+                </p>
+              </div>
+
+              <form class="panel" id="panel-profile" hidden>
+                <h3 class="panel__title">Your profile</h3>
+                <label class="field">
+                  <span>Display name</span>
+                  <input name="name" autocomplete="name" required />
+                </label>
+                <div class="panel__actions">
+                  <button type="submit" class="btn btn--primary">
+                    Save profile
+                  </button>
+                  <button type="button" class="btn" data-cancel>Cancel</button>
+                </div>
+              </form>
+
+              <form class="panel" id="panel-project" hidden>
+                <h3 class="panel__title">New project</h3>
+                <label class="field">
+                  <span>Project name</span>
+                  <input name="project" autocomplete="off" required />
+                </label>
+                <div class="panel__actions">
+                  <button type="submit" class="btn btn--primary">
+                    Create project
+                  </button>
+                  <button type="button" class="btn" data-cancel>Cancel</button>
+                </div>
+              </form>
+
+              <form class="panel" id="panel-invite" hidden>
+                <h3 class="panel__title">Invite a teammate</h3>
+                <label class="field">
+                  <span>Email address</span>
+                  <input
+                    name="email"
+                    type="email"
+                    autocomplete="off"
+                    required
+                  />
+                </label>
+                <p class="field-hint">Nothing is sent. This is a demo.</p>
+                <div class="panel__actions">
+                  <button type="submit" class="btn btn--primary">
+                    Send invite
+                  </button>
+                  <button type="button" class="btn" data-cancel>Cancel</button>
+                </div>
+              </form>
+
+              <ul class="app__projects" id="project-list" hidden></ul>
+            </div>
+          </div>
+
+          <aside class="sidebar" aria-label="Onboarding">
+            <div id="onboarding"></div>
+            <div class="done" id="done-banner" hidden>
+              <p class="done__title">You’re all set</p>
+              <p>
+                <code>onChange</code> saw every step completed, so the app shows
+                this message.
+              </p>
+              <button type="button" class="btn" id="done-reset">
+                Start over
+              </button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="playground">
+          <div class="controls">
+            <h3>Try the API</h3>
+            <div class="control-row">
+              <button type="button" class="btn" id="ctl-next">
+                <code>complete()</code> next step
+              </button>
+              <button type="button" class="btn" id="ctl-verify">
+                Simulate “email verified”
+              </button>
+              <button type="button" class="btn" id="ctl-reset">
+                <code>reset()</code>
+              </button>
+              <button type="button" class="btn" id="ctl-destroy">
+                <code>destroy()</code>
+              </button>
+            </div>
+
+            <label class="toggle">
+              <input type="checkbox" id="ctl-persist" />
+              <span>
+                Remember progress in this browser
+                <span class="toggle__hint"
+                  >Re-creates the widget with <code>storageKey</code>. Reload
+                  the page to see it restored. Turning it off clears the saved
+                  value.</span
+                >
+              </span>
+            </label>
+
+            <fieldset class="themes">
+              <legend>Widget theme (CSS custom properties)</legend>
+              <label
+                ><input type="radio" name="theme" value="" checked />
+                Default</label
+              >
+              <label
+                ><input type="radio" name="theme" value="theme-violet" />
+                Violet</label
+              >
+              <label
+                ><input type="radio" name="theme" value="theme-midnight" />
+                Midnight</label
+              >
+            </fieldset>
+          </div>
+
+          <div class="log">
+            <div class="log__head">
+              <h3 id="log-title">Events</h3>
+              <button type="button" class="btn btn--small" id="log-clear">
+                Clear
+              </button>
+            </div>
+            <p class="log__empty" id="log-empty">
+              Callbacks and return values appear here.
+            </p>
+            <ol
+              class="log__list"
+              id="event-log"
+              aria-labelledby="log-title"
+            ></ol>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="examples"
+        class="section wrap"
+        aria-labelledby="examples-title"
+      >
+        <h2 id="examples-title">Examples</h2>
+        <p class="section-intro">
+          Copy any example as is. The JavaScript also works as TypeScript
+          because the package ships its own types. Tests run these exact
+          snippets against the built package and check that they match the
+          README.
+        </p>
+
+        <article class="example" aria-labelledby="ex-quickstart">
+          <div class="example__head">
+            <h3 id="ex-quickstart">Quick start without a bundler</h3>
+            <button type="button" class="btn btn--small" data-copy="quickstart">
+              Copy
+            </button>
+          </div>
+          <p>
+            The package is ESM only. With a bundler, just
+            <code>import</code> it. Without one, map the package name in an
+            import map and serve the page over HTTP. ES modules don’t load from
+            <code>file://</code>.
+          </p>
+          <pre data-example="quickstart"><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;title&gt;Checklist&lt;/title&gt;
+    &lt;script type="importmap"&gt;
+      {
+        "imports": {
+          "@stepr/checklist": "/node_modules/@stepr/checklist/dist/index.js"
+        }
+      }
+    &lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="onboarding"&gt;&lt;/div&gt;
+    &lt;script type="module"&gt;
+      import { createChecklist } from '@stepr/checklist';
+
+      createChecklist({
+        container: '#onboarding',
+        title: 'Get started',
+        steps: [
+          {
+            id: 'profile',
+            label: 'Complete your profile',
+            onClick: (step, checklist) =&gt; checklist.complete(step.id),
+          },
+          { id: 'docs', label: 'Read the docs' },
+        ],
+      });
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </article>
+
+        <article class="example" aria-labelledby="ex-app-events">
+          <div class="example__head">
+            <h3 id="ex-app-events">Complete steps from your app</h3>
+            <button type="button" class="btn btn--small" data-copy="app-events">
+              Copy
+            </button>
+          </div>
+          <p>
+            Activating a step only calls its <code>onClick</code>. Mark a step
+            done when the work actually happens, from any code that holds the
+            checklist. Steps without <code>onClick</code> are rendered as text.
+          </p>
+          <pre
+            data-example="app-events"
+          ><code>import { createChecklist } from '@stepr/checklist';
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    {
+      id: 'profile',
+      label: 'Complete your profile',
+      onClick: () =&gt; openProfileForm(), // opening the form does not complete it
+    },
+    { id: 'verify', label: 'Verify your email address' }, // text only
+  ],
+  onChange: ({ progress }) =&gt; {
+    if (progress.completed === progress.total) showAllDoneMessage();
+  },
+});
+
+// Complete steps when the work is actually done, from anywhere in your app:
+onProfileSaved(() =&gt; checklist.complete('profile'));
+onEmailVerified(() =&gt; checklist.complete('verify'));</code></pre>
+        </article>
+
+        <article class="example" aria-labelledby="ex-persistence">
+          <div class="example__head">
+            <h3 id="ex-persistence">Persistence, reset and cleanup</h3>
+            <button
+              type="button"
+              class="btn btn--small"
+              data-copy="persistence"
+            >
+              Copy
+            </button>
+          </div>
+          <p>
+            Persistence is opt-in. Completed step ids are stored in
+            <code>localStorage</code> under your key. If storage is unavailable
+            or full, the checklist keeps working in memory.
+          </p>
+          <pre
+            data-example="persistence"
+          ><code>import { createChecklist } from '@stepr/checklist';
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    { id: 'profile', label: 'Complete your profile' },
+    { id: 'invite', label: 'Invite a teammate' },
+  ],
+  storageKey: 'my-app:onboarding', // restored on creation, saved on change
+});
+
+checklist.complete('invite'); // true, and saved
+checklist.complete('invite'); // false: already complete, nothing saved
+checklist.getProgress(); // { completed: 1, total: 2 }
+
+checklist.reset(); // marks every step incomplete, and saves that
+checklist.destroy(); // removes the widget; saved progress is kept
+localStorage.removeItem('my-app:onboarding'); // forget saved progress</code></pre>
+        </article>
+
+        <article class="example" aria-labelledby="ex-stepr">
+          <div class="example__head">
+            <h3 id="ex-stepr">Start a Stepr tour from a step</h3>
+            <button type="button" class="btn btn--small" data-copy="stepr">
+              Copy
+            </button>
+          </div>
+          <p>
+            The checklist doesn’t know about tours. Your app connects the two
+            libraries with callbacks: the step’s <code>onClick</code> starts the
+            tour, and the tour’s <code>onComplete</code> completes the step.
+            Closing the tour early leaves the step open.
+            <a href="https://github.com/ahlgren1234/stepr">Stepr</a> is a
+            separate package that you install yourself.
+          </p>
+          <pre
+            data-example="stepr"
+          ><code>import { createChecklist } from '@stepr/checklist';
+import { createTour } from 'stepr';
+
+const tour = createTour({
+  steps: [
+    { target: '#new-project', title: 'Projects', description: 'Start here.' },
+    { target: '#invite', title: 'Invite your team' },
+  ],
+  onComplete: () =&gt; checklist.complete('tour'), // finished: tick it off
+  onExit: () =&gt; {}, // closed early: the step stays incomplete
+});
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    {
+      id: 'tour',
+      label: 'Take the product tour',
+      onClick: () =&gt; {
+        if (!tour.start()) console.warn('No tour target is visible');
+      },
+    },
+  ],
+});</code></pre>
+        </article>
+
+        <article class="example" aria-labelledby="ex-theme">
+          <div class="example__head">
+            <h3 id="ex-theme">Theme with CSS custom properties</h3>
+            <button type="button" class="btn btn--small" data-copy="theme">
+              Copy
+            </button>
+          </div>
+          <p>
+            Set the properties on the widget or on any ancestor, such as the
+            container. This is the demo’s “Violet” theme. If you change colors,
+            check the contrast yourself.
+          </p>
+          <pre
+            data-example="theme"
+          ><code>/* &lt;div id="onboarding" class="theme-violet"&gt;&lt;/div&gt; */
+.theme-violet {
+  --stepr-checklist-accent: #6d28d9;
+  --stepr-checklist-focus: #6d28d9;
+  --stepr-checklist-background: #faf5ff;
+  --stepr-checklist-hover: #f3e8ff;
+  --stepr-checklist-border: #8b5cf6;
+  --stepr-checklist-radius: 1rem;
+}</code></pre>
+        </article>
+      </section>
+
+      <section
+        id="reference"
+        class="section wrap"
+        aria-labelledby="reference-title"
+      >
+        <h2 id="reference-title">Reference</h2>
+        <p class="section-intro">
+          A summary. The README has the full API and behavior details.
+        </p>
+
+        <div class="ref-grid">
+          <div class="card">
+            <h3>Exports</h3>
+            <dl class="defs">
+              <dt><code>createChecklist(options)</code></dt>
+              <dd>
+                Renders the widget and returns the controller methods plus
+                <code>element</code> and <code>destroy()</code>.
+              </dd>
+              <dt><code>createChecklistController(options)</code></dt>
+              <dd>The same state without any DOM, for building your own UI.</dd>
+              <dt><code>checklistCss</code></dt>
+              <dd>
+                The default stylesheet as a string, for use with
+                <code>injectStyles: false</code>.
+              </dd>
+            </dl>
+          </div>
+
+          <div class="card">
+            <h3>Methods</h3>
+            <dl class="defs">
+              <dt><code>complete(id)</code> / <code>uncomplete(id)</code></dt>
+              <dd>
+                Return <code>true</code> if the state changed. Unknown ids
+                throw.
+              </dd>
+              <dt><code>reset()</code></dt>
+              <dd>Marks every step incomplete.</dd>
+              <dt><code>click(id)</code></dt>
+              <dd>
+                Calls the step’s <code>onClick</code>; never completes it.
+              </dd>
+              <dt>
+                <code>isCompleted(id)</code>, <code>getProgress()</code>,
+                <code>getState()</code>
+              </dt>
+              <dd>Read state as fresh snapshots.</dd>
+              <dt><code>subscribe(fn)</code></dt>
+              <dd>Runs after every change. Returns an unsubscribe function.</dd>
+            </dl>
+          </div>
+
+          <div class="card">
+            <h3>Accessibility</h3>
+            <ul class="plain">
+              <li>
+                Steps with <code>onClick</code> are native buttons, so mouse,
+                touch, Enter and Space all work.
+              </li>
+              <li>
+                Each step’s accessible name includes its state, for example
+                “Complete your profile, completed”.
+              </li>
+              <li>
+                The progress text is a polite live region. Focus stays put when
+                state changes.
+              </li>
+              <li>
+                Visible focus outline, 44px targets, and no transitions when
+                reduced motion is requested.
+              </li>
+            </ul>
+            <p class="note">
+              Not yet tested with a screen reader. See the manual test in
+              <code>docs/manual-testing.md</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="card card--wide">
+          <h3>CSS custom properties</h3>
+          <p>
+            Read from the <code>checklistCss</code> export of the build this
+            page loaded.
+          </p>
+          <div class="table-scroll">
+            <table class="props">
+              <thead>
+                <tr>
+                  <th scope="col">Property</th>
+                  <th scope="col">Default</th>
+                </tr>
+              </thead>
+              <tbody id="css-props"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>
+          <code>@stepr/checklist</code> is pre-release and not published yet.
+          Its API may change before v0.1.0. This page is the demo in the
+          repository and is not deployed anywhere.
+        </p>
+      </div>
+    </footer>
+
+    <p class="visually-hidden" role="status" id="copy-status"></p>
+  </body>
+</html>

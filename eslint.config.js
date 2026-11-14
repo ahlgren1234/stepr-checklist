@@ -5,14 +5,14 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist/', 'coverage/']),
+  globalIgnores(['dist/', 'coverage/', 'test/built/.examples/']),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.js', 'scripts/*.mjs'],
+          allowDefaultProject: ['*.js', 'scripts/*.mjs', 'demo/*.js'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -22,5 +22,9 @@ export default defineConfig(
     files: ['**/*.js', '**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['demo/**/*.js'],
+    languageOptions: { globals: globals.browser },
   },
 );
