@@ -1,9 +1,15 @@
 /**
  * Public entry point for `@stepr/checklist`.
  *
- * The API is provisional: this placeholder export only exists so the package
- * build, type declarations and consumer import path can be verified.
+ * The API is provisional until v0.1.0.
  */
-
-/** Current package version. Placeholder until the release process is defined. */
-export const VERSION = '0.0.0';
+export { createChecklistController } from './controller.js';
+export type {
+  ChecklistController,
+  ChecklistControllerOptions,
+  ChecklistListener,
+  ChecklistProgress,
+  ChecklistState,
+  ChecklistStep,
+  ChecklistStepState,
+} from './controller.js';
