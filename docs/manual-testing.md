@@ -3,7 +3,8 @@
 Automated tests (jsdom) cover structure, state and focus retention, but not
 real keyboard handling, rendering or assistive-technology output. Run this
 short check before releases and after changes to the widget's markup or styles.
-It takes about 10 minutes.
+It takes about 10 minutes. Record release results in
+[releasing.md](releasing.md).
 
 ## Setup
 
@@ -66,6 +67,9 @@ Safari (macOS/iOS) or TalkBack + Chrome (Android).
 - [ ] At 320px width (device emulation or a phone), long labels wrap, there is
       no horizontal scrolling and steps are easy to tap.
 - [ ] With 200% browser zoom, the layout remains usable.
+- [ ] Incomplete step markers are clearly visible as rings in the default
+      theme, also while a step is hovered (default ring `#4b5563`; see the
+      README's styling section for the measured ratios).
 - [ ] With "reduce motion" enabled in the OS, hovering steps has no transition.
 - [ ] In Windows High Contrast / forced colors mode, focus outlines, step
       borders and the progress bar remain visible.

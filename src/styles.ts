@@ -93,7 +93,7 @@ export const checklistCss = `
   justify-content: center;
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid var(--_border);
+  border: 2px solid var(--_muted);
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: 700;

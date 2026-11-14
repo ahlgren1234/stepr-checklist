@@ -1,7 +1,7 @@
 /**
  * Public entry point for `@stepr/checklist`.
  *
- * The API is provisional until v0.1.0.
+ * Versions are 0.x: a minor release may contain breaking changes.
  */
 export { createChecklist } from './widget.js';
 export type {
