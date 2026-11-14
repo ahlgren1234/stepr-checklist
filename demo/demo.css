@@ -1,0 +1,695 @@
+/* Demo page styles. The checklist itself uses the package's default
+   stylesheet; only the themes below touch its custom properties. */
+
+:root {
+  color-scheme: light;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --line: #e2e8f0;
+  --line-strong: #94a3b8;
+  --surface: #ffffff;
+  --canvas: #f8fafc;
+  --brand: #4338ca;
+  --brand-ink: #ffffff;
+  --brand-soft: #eef2ff;
+  --focus: #2563eb;
+  --radius: 0.75rem;
+  --shadow: 0 1px 2px rgb(15 23 42 / 6%), 0 8px 24px rgb(15 23 42 / 8%);
+  --mono:
+    ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.55;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+  font-size: 0.875em;
+}
+
+/* Long identifiers must not widen the page on narrow screens. */
+:not(pre) > code {
+  overflow-wrap: anywhere;
+}
+
+a {
+  color: var(--brand);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.wrap {
+  width: min(72rem, 100% - 2rem);
+  margin-inline: auto;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100vh;
+  left: 1rem;
+  z-index: 1;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+
+.hero {
+  padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2rem, 5vw, 3.5rem);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(60rem 24rem at 85% -10%, #e0e7ff, transparent 70%),
+    radial-gradient(40rem 20rem at 0% 0%, #f0f9ff, transparent 70%),
+    var(--surface);
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 20ch;
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 60ch;
+  margin: 0 0 1.5rem;
+  color: var(--ink-soft);
+  font-size: 1.125rem;
+}
+
+.hero-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-nav a {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.hero-nav a:first-child {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+/* --- Sections ------------------------------------------------------------ */
+
+.section {
+  padding-block: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* Child combinator: must not restyle the checklist widget's own <h2>. */
+.section > h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.01em;
+}
+
+.section-intro {
+  max-width: 65ch;
+  margin: 0 0 1.5rem;
+  color: var(--ink-soft);
+}
+
+/* --- Buttons and fields -------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--canvas);
+}
+
+.btn--primary {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.btn--primary:hover {
+  background: #3730a3;
+}
+
+.btn--small {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn code {
+  font-size: 0.85em;
+}
+
+.field {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 24rem;
+  font-weight: 500;
+}
+
+.field input {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.field-hint {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+/* --- Demo layout --------------------------------------------------------- */
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.app {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.app__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--canvas);
+}
+
+.app__dots {
+  display: inline-flex;
+  gap: 0.375rem;
+}
+
+.app__dots span {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+
+.app__name {
+  font-weight: 600;
+}
+
+.app__setup {
+  margin-inline-start: auto;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.app__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.app__body {
+  display: grid;
+  gap: 1rem;
+  min-height: 15rem;
+  padding: 1.25rem;
+}
+
+.app__empty {
+  align-self: center;
+  justify-self: center;
+  max-width: 30ch;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.app__empty-title {
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.panel[hidden],
+.app__empty[hidden],
+.app__projects[hidden] {
+  display: none;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.app__projects {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app__projects li {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--canvas);
+  font-weight: 500;
+}
+
+.app__projects li::before {
+  content: '▣ ';
+  color: var(--brand);
+}
+
+.sidebar {
+  display: grid;
+  gap: 1rem;
+}
+
+.sidebar .stepr-checklist {
+  box-shadow: var(--shadow);
+}
+
+.done {
+  padding: 1rem;
+  border: 1px solid #86efac;
+  border-radius: var(--radius);
+  background: #f0fdf4;
+}
+
+.done[hidden] {
+  display: none;
+}
+
+.done p {
+  margin: 0 0 0.75rem;
+}
+
+.done__title {
+  color: #166534;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+/* --- Playground ---------------------------------------------------------- */
+
+.playground {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.controls,
+.log,
+.card,
+.example {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.controls h3,
+.log h3,
+.card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.toggle {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.toggle input,
+.themes input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  flex: none;
+  accent-color: var(--brand);
+}
+
+.toggle__hint {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.themes legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-weight: 500;
+}
+
+.themes label {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.log__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.log__head h3 {
+  margin: 0;
+}
+
+.log__empty {
+  margin: 0.75rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+.log__empty[hidden] {
+  display: none;
+}
+
+.log__list {
+  display: grid;
+  gap: 0.375rem;
+  max-height: 16rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  font-size: 0.875rem;
+}
+
+.log__list li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.log__source {
+  flex: none;
+  min-width: 4.75rem;
+  padding: 0 0.375rem;
+  border-radius: 0.25rem;
+  background: var(--canvas);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.log__source--onChange {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.log__source--stepr {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.log__source--api {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+/* --- Examples ------------------------------------------------------------ */
+
+.example {
+  margin-bottom: 1.25rem;
+}
+
+.example__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.example h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.example p {
+  max-width: 70ch;
+  color: var(--ink-soft);
+}
+
+.example pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: var(--ink);
+  color: #e2e8f0;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.example pre code {
+  font-size: 0.8125rem;
+}
+
+/* --- Reference ----------------------------------------------------------- */
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.defs {
+  margin: 0;
+}
+
+.defs dt {
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.defs dt:first-child {
+  margin-top: 0;
+}
+
+.defs dd {
+  margin: 0.125rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+.plain {
+  margin: 0;
+  padding-inline-start: 1.125rem;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+.plain li + li {
+  margin-top: 0.5rem;
+}
+
+.note {
+  margin: 1rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  font-size: 0.875rem;
+}
+
+.card p {
+  color: var(--ink-soft);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.props {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.props th,
+.props td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  text-align: start;
+}
+
+.footer {
+  padding-block: 2rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* --- Widget themes (CSS custom properties) ------------------------------- */
+
+/* <div id="onboarding" class="theme-violet"></div> */
+.theme-violet {
+  --stepr-checklist-accent: #6d28d9;
+  --stepr-checklist-focus: #6d28d9;
+  --stepr-checklist-background: #faf5ff;
+  --stepr-checklist-hover: #f3e8ff;
+  --stepr-checklist-border: #8b5cf6;
+  --stepr-checklist-radius: 1rem;
+}
+
+.theme-midnight {
+  --stepr-checklist-background: #0f172a;
+  --stepr-checklist-foreground: #e2e8f0;
+  --stepr-checklist-muted: #94a3b8;
+  --stepr-checklist-border: #64748b;
+  --stepr-checklist-hover: #1e293b;
+  --stepr-checklist-accent: #38bdf8;
+  --stepr-checklist-accent-foreground: #0f172a;
+  --stepr-checklist-focus: #7dd3fc;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 56rem) {
+  .demo-grid,
+  .playground {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Show the checklist first on small screens: it drives the demo. */
+  .sidebar {
+    order: -1;
+  }
+}

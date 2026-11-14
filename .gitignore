@@ -5,5 +5,7 @@ coverage/
 *.log
 .DS_Store
 
-# Local manual smoke-test page (docs/manual-testing.md)
+# Old location of the manual smoke-test page (now demo/smoke.html)
 /smoke.html
+# Temporary files written by test/built/examples.test.ts
+/test/built/.examples/

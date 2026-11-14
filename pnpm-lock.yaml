@@ -187,6 +187,9 @@ importers:
       publint:
         specifier: ^0.3.25
         version: 0.3.25
+      stepr:
+        specifier: 0.1.0
+        version: 0.1.0
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -1109,6 +1112,9 @@ packages:
 
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
+
+  stepr@0.1.0:
+    resolution: {integrity: sha512-SPWnTADw8Eb5D6M6F9MowGZl91xlHtgg6jVJ6f28LbQSbVnb/WUtvg3XXANExCXl7/BOZXujLgIoDJ0/63B+0g==}
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -2211,6 +2217,8 @@ snapshots:
   source-map-js@1.2.2: {}
 
   std-env@4.3.0: {}
+
+  stepr@0.1.0: {}
 
   string-width@4.2.3:
     dependencies:

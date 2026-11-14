@@ -7,66 +7,13 @@ It takes about 10 minutes.
 
 ## Setup
 
-1. `pnpm build`
-2. Save the page below as `smoke.html` in the repository root (it is not
-   committed; a demo site is planned separately).
-3. Serve the repository root, e.g. `python3 -m http.server 8000`, and open
-   <http://localhost:8000/smoke.html>. (ES modules do not load from `file://`.)
-
-```html
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Checklist smoke test</title>
-  </head>
-  <body>
-    <main>
-      <h1>Checklist smoke test</h1>
-      <button type="button" id="before">Before</button>
-      <div id="a"></div>
-      <div id="b"></div>
-      <button type="button" id="reset">Reset first checklist</button>
-    </main>
-    <script type="module">
-      import { createChecklist } from './dist/index.js';
-
-      const a = createChecklist({
-        container: '#a',
-        title: 'Get started',
-        storageKey: 'smoke:a',
-        steps: [
-          {
-            id: 'profile',
-            label: 'Complete your profile',
-            onClick: (step, list) => list.complete(step.id),
-          },
-          {
-            id: 'invite',
-            label: 'Invite a teammate (logs only, does not complete)',
-            onClick: () => console.log('invite activated'),
-          },
-          { id: 'docs', label: 'Read the docs (not interactive)' },
-        ],
-      });
-      createChecklist({
-        container: document.querySelector('#b'),
-        title: 'Second checklist',
-        steps: [
-          {
-            id: 'profile',
-            label: 'Same id, independent state',
-            onClick: (step, list) => list.complete(step.id),
-          },
-        ],
-      });
-      document.querySelector('#reset').onclick = () => a.reset();
-      window.checklist = a; // for console checks
-    </script>
-  </body>
-</html>
-```
+1. `pnpm demo`. This builds `dist/` and serves the repository at
+   <http://localhost:4173/> (set `PORT` to change the port).
+2. Open <http://localhost:4173/demo/smoke.html> for the checks below. The page
+   is [`demo/smoke.html`](../demo/smoke.html) and imports `../dist/index.js`.
+   ES modules don't load from `file://`.
+3. Then repeat the keyboard and display checks briefly on the full demo,
+   <http://localhost:4173/demo/>, which adds forms, a Stepr tour and theming.
 
 ## Keyboard (any browser)
 
@@ -96,6 +43,22 @@ Safari (macOS/iOS) or TalkBack + Chrome (Android).
       "1 of 3 steps complete" is announced politely without focus moving.
 - [ ] The progress bar is announced with its label and value.
 - [ ] Nothing is announced as a dialog.
+
+## Demo page
+
+- [ ] Activating "Complete your profile" moves focus into the form; saving it
+      with <kbd>Enter</kbd> completes the step and returns focus to it.
+- [ ] "Take the product tour" opens the Stepr tour with focus on Next;
+      finishing it completes the step and returns focus to the step;
+      <kbd>Escape</kbd> closes it early and leaves the step incomplete.
+- [ ] With a screen reader, the Stepr dialog is announced, and after it closes
+      the checklist's progress change is announced once.
+- [ ] Each "Copy" button copies its example (or selects it where the Clipboard
+      API is unavailable), and the result is announced.
+- [ ] The "Midnight" theme keeps the focus outline, markers and progress bar
+      visible.
+- [ ] On a real phone (iOS Safari and Android Chrome), the checklist appears
+      before the app, steps are easy to tap, and the tour tooltip fits.
 
 ## Display preferences
 

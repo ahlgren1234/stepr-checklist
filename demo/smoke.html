@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checklist smoke test</title>
+    <!-- Manual test page: see docs/manual-testing.md. Run `pnpm demo`. -->
+  </head>
+  <body>
+    <main>
+      <h1>Checklist smoke test</h1>
+      <button type="button" id="before">Before</button>
+      <div id="a"></div>
+      <div id="b"></div>
+      <button type="button" id="reset">Reset first checklist</button>
+    </main>
+    <script type="module">
+      import { createChecklist } from '../dist/index.js';
+
+      const a = createChecklist({
+        container: '#a',
+        title: 'Get started',
+        storageKey: 'smoke:a',
+        steps: [
+          {
+            id: 'profile',
+            label: 'Complete your profile',
+            onClick: (step, list) => list.complete(step.id),
+          },
+          {
+            id: 'invite',
+            label: 'Invite a teammate (logs only, does not complete)',
+            onClick: () => console.log('invite activated'),
+          },
+          { id: 'docs', label: 'Read the docs (not interactive)' },
+        ],
+      });
+      createChecklist({
+        container: document.querySelector('#b'),
+        title: 'Second checklist',
+        steps: [
+          {
+            id: 'profile',
+            label: 'Same id, independent state',
+            onClick: (step, list) => list.complete(step.id),
+          },
+        ],
+      });
+      document.querySelector('#reset').onclick = () => a.reset();
+      window.checklist = a; // for console checks
+    </script>
+  </body>
+</html>

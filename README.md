@@ -3,16 +3,86 @@
 Lightweight, framework-agnostic onboarding checklist widget for the web.
 
 > **Status: pre-release.** The package is `private` and not published. The
-> checklist widget, state controller and optional persistence exist; there is
-> no demo site yet. The public API is **provisional** — expect breaking
-> changes until v0.1.0.
+> checklist widget, state controller, optional persistence and a local demo
+> exist. The public API is **provisional** — expect breaking changes until
+> v0.1.0.
 
-## Intended scope
+`@stepr/checklist` is a small, dependency-free onboarding checklist widget
+that works with any framework, or none. Steps are native buttons. Your app
+decides when a step is complete, and progress can optionally be saved in
+`localStorage`.
 
-`@stepr/checklist` will be a small, dependency-free, customizable onboarding
-checklist widget that works with any framework (or none). Planned work is tracked
-in GitHub issues: checklist state and controller API, optional `localStorage`
-persistence, an accessible DOM widget, and docs/demo.
+- [Demo](#demo) · [Quick start](#quick-start) · [Widget](#checklist-widget) ·
+  [Controller](#checklist-controller) · [Persistence](#persistence) ·
+  [Examples](#examples) · [Stepr integration](#starting-a-stepr-tour-from-a-step)
+  · [Limitations](#limitations) · [Browser support](#browser-support)
+
+## Demo
+
+The [`demo/`](demo/) folder has an interactive page with no framework. It
+shows a made-up app whose onboarding steps are completed by app events,
+programmatic completion, `reset()`, `destroy()`, opt-in persistence, themes, a
+[Stepr](https://github.com/ahlgren1234/stepr) tour started from a step, and
+the README examples with copy buttons.
+
+```sh
+pnpm install
+pnpm demo # builds dist/, then serves http://localhost:4173/demo/
+```
+
+The demo imports the **built package** (`dist/`) through an import map, using
+the same `import … from '@stepr/checklist'` as the examples. Stepr is a
+`devDependency` used only by the demo. It is not a dependency of the package.
+`pnpm test:built` runs the demo and the README examples against `dist/` in
+jsdom. The demo isn't deployed anywhere.
+
+## Quick start
+
+The package isn't published yet. To try it in another project, build a tarball
+with `pnpm build && pnpm pack` and install the resulting
+`stepr-checklist-0.0.0.tgz`. With a bundler, `import` it as usual. Without
+one, map the package name in an [import map][import-maps] and serve the page
+over HTTP, because ES modules don't load from `file://`:
+
+<!-- example: quickstart -->
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Checklist</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@stepr/checklist": "/node_modules/@stepr/checklist/dist/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="onboarding"></div>
+    <script type="module">
+      import { createChecklist } from '@stepr/checklist';
+
+      createChecklist({
+        container: '#onboarding',
+        title: 'Get started',
+        steps: [
+          {
+            id: 'profile',
+            label: 'Complete your profile',
+            onClick: (step, checklist) => checklist.complete(step.id),
+          },
+          { id: 'docs', label: 'Read the docs' },
+        ],
+      });
+    </script>
+  </body>
+</html>
+```
+
+[import-maps]: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
 
 ## Checklist widget
 
@@ -93,36 +163,58 @@ Behavior:
   44px tall; transitions are disabled under `prefers-reduced-motion`.
 - No dialog, ARIA widget roles or custom key handling: only native elements.
 
-See [docs/manual-testing.md](docs/manual-testing.md) for the manual keyboard
-and screen-reader smoke test.
+What has been verified: the structure above (roles, names, live region,
+focus retention) is covered by jsdom tests, and keyboard operation and focus
+retention were checked in Playwright's bundled browsers (see
+[Browser support](#browser-support)). It has **not** been tested with a screen
+reader, and the widget hasn't been audited against WCAG. See
+[docs/manual-testing.md](docs/manual-testing.md) for the manual keyboard and
+screen-reader test.
 
 ### Styling
 
 The default stylesheet is inserted once at the start of `<head>` (so your own
 rules of equal specificity win) and uses BEM-style classes such as
 `.stepr-checklist`, `.stepr-checklist__step` and `.stepr-checklist__action`;
-completed steps have a `data-completed` attribute. Theme it with custom
+completed steps have a `data-completed` attribute. Theme it with these custom
 properties on `.stepr-checklist` or any ancestor:
 
+| Property                              | Default   | Used for                                        |
+| ------------------------------------- | --------- | ----------------------------------------------- |
+| `--stepr-checklist-accent`            | `#2563eb` | Completed marker, progress bar (`accent-color`) |
+| `--stepr-checklist-accent-foreground` | `#ffffff` | Check mark glyph                                |
+| `--stepr-checklist-background`        | `#ffffff` | Widget background                               |
+| `--stepr-checklist-foreground`        | `#1f2937` | Text                                            |
+| `--stepr-checklist-muted`             | `#4b5563` | Progress text, completed labels                 |
+| `--stepr-checklist-border`            | `#d1d5db` | Widget border, incomplete marker ring           |
+| `--stepr-checklist-hover`             | `#f3f4f6` | Step background on hover                        |
+| `--stepr-checklist-focus`             | `#2563eb` | Focus outline                                   |
+| `--stepr-checklist-radius`            | `0.5rem`  | Widget corner radius (steps use 75% of it)      |
+| `--stepr-checklist-padding`           | `1rem`    | Widget padding                                  |
+| `--stepr-checklist-gap`               | `0.5rem`  | Spacing between parts (steps use half of it)    |
+| `--stepr-checklist-font-family`       | `inherit` | Font                                            |
+
+<!-- example: theme -->
+
 ```css
-.stepr-checklist {
-  --stepr-checklist-accent: #7c3aed; /* check mark, progress bar */
-  --stepr-checklist-accent-foreground: #fff; /* check mark glyph */
-  --stepr-checklist-background: #fff;
-  --stepr-checklist-foreground: #1f2937;
-  --stepr-checklist-muted: #4b5563; /* progress text, completed labels */
-  --stepr-checklist-border: #d1d5db;
-  --stepr-checklist-hover: #f3f4f6;
-  --stepr-checklist-focus: #2563eb; /* focus outline */
-  --stepr-checklist-radius: 0.5rem;
-  --stepr-checklist-padding: 1rem;
-  --stepr-checklist-gap: 0.5rem;
-  --stepr-checklist-font-family: inherit;
+/* <div id="onboarding" class="theme-violet"></div> */
+.theme-violet {
+  --stepr-checklist-accent: #6d28d9;
+  --stepr-checklist-focus: #6d28d9;
+  --stepr-checklist-background: #faf5ff;
+  --stepr-checklist-hover: #f3e8ff;
+  --stepr-checklist-border: #8b5cf6;
+  --stepr-checklist-radius: 1rem;
 }
 ```
 
 With `injectStyles: false`, include the exported `checklistCss` string (or
-your own styles) yourself. Keep sufficient contrast when changing colors.
+your own styles) yourself, for example in a `<style>` with a CSP nonce or a
+shadow root. Check contrast when you change colors: the default border
+(`#d1d5db` on white, about 1.5:1) is also the incomplete marker's ring, which is
+below the 3:1 that WCAG 1.4.11 asks of non-text indicators. A step's state is
+also conveyed by its accessible name and the progress text; visually it is
+shown only by the marker and the muted label color.
 
 ## Checklist controller
 
@@ -214,6 +306,176 @@ const checklist = createChecklistController({
   created or changed, never on import, so the package is safe to import during
   server-side rendering.
 
+## Examples
+
+All examples are plain JavaScript. They also work unchanged as TypeScript,
+since the package ships its own types. Placeholders such as
+`openProfileForm` stand for your app's code. `pnpm test:built` runs each of
+these blocks against the built package, and checks that the demo shows the
+same text.
+
+### Completing steps from your app
+
+<!-- example: app-events -->
+
+```js
+import { createChecklist } from '@stepr/checklist';
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    {
+      id: 'profile',
+      label: 'Complete your profile',
+      onClick: () => openProfileForm(), // opening the form does not complete it
+    },
+    { id: 'verify', label: 'Verify your email address' }, // text only
+  ],
+  onChange: ({ progress }) => {
+    if (progress.completed === progress.total) showAllDoneMessage();
+  },
+});
+
+// Complete steps when the work is actually done, from anywhere in your app:
+onProfileSaved(() => checklist.complete('profile'));
+onEmailVerified(() => checklist.complete('verify'));
+```
+
+If a step's `onClick` moves focus, for example into a form, move it back
+afterwards (the demo returns it to the step that opened the form). The widget
+doesn't manage focus outside itself.
+
+### Persistence, reset and cleanup
+
+<!-- example: persistence -->
+
+```js
+import { createChecklist } from '@stepr/checklist';
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    { id: 'profile', label: 'Complete your profile' },
+    { id: 'invite', label: 'Invite a teammate' },
+  ],
+  storageKey: 'my-app:onboarding', // restored on creation, saved on change
+});
+
+checklist.complete('invite'); // true, and saved
+checklist.complete('invite'); // false: already complete, nothing saved
+checklist.getProgress(); // { completed: 1, total: 2 }
+
+checklist.reset(); // marks every step incomplete, and saves that
+checklist.destroy(); // removes the widget; saved progress is kept
+localStorage.removeItem('my-app:onboarding'); // forget saved progress
+```
+
+### Starting a Stepr tour from a step
+
+[Stepr](https://github.com/ahlgren1234/stepr) is a separate tour library.
+`@stepr/checklist` doesn't import it or depend on it. Install it yourself
+(`npm install stepr`) if you want tours, and connect the two in your app:
+
+<!-- example: stepr -->
+
+```js
+import { createChecklist } from '@stepr/checklist';
+import { createTour } from 'stepr';
+
+const tour = createTour({
+  steps: [
+    { target: '#new-project', title: 'Projects', description: 'Start here.' },
+    { target: '#invite', title: 'Invite your team' },
+  ],
+  onComplete: () => checklist.complete('tour'), // finished: tick it off
+  onExit: () => {}, // closed early: the step stays incomplete
+});
+
+const checklist = createChecklist({
+  container: '#onboarding',
+  title: 'Get started',
+  steps: [
+    {
+      id: 'tour',
+      label: 'Take the product tour',
+      onClick: () => {
+        if (!tour.start()) console.warn('No tour target is visible');
+      },
+    },
+  ],
+});
+```
+
+- The step's `onClick` starts the tour. Only the tour's `onComplete`, which
+  runs when the user passes the last step, completes the checklist step.
+  Close or Escape calls `onExit` and leaves the step open, so the user can
+  retry.
+- `tour.start()` returns `false` when none of the tour's targets is rendered.
+  Handle that case, for example by completing the step anyway or showing help.
+- When the tour ends, Stepr returns focus to the element that was focused
+  before `start()`. For a step activated from the keyboard, that is the step's
+  button.
+- Stepr has its own accessibility notes and limitations; see its README. The
+  pairing was exercised in the demo with Stepr 0.1.0.
+
+## Limitations
+
+- **Pre-release and unpublished.** The API may change before v0.1.0.
+- **Steps are fixed at creation.** To add, remove or relabel steps, `destroy()`
+  the widget and create a new one. Labels are plain text; there are no
+  descriptions, icons or links inside steps.
+- **No built-in reset, dismiss, collapse or "hide when done" UI.** Use the API
+  (as the demo does) and your own controls.
+- **Default text is English.** Override it with `messages`.
+- **Light default theme only.** There is no automatic dark mode; use the
+  custom properties. See the contrast note under [Styling](#styling).
+- **Shadow DOM:** the default stylesheet goes into the document's `<head>`, so
+  it doesn't reach a widget inside a shadow root. Use `injectStyles: false` and
+  add `checklistCss` to the shadow root yourself. A string `container` is
+  resolved with `document.querySelector` and doesn't look inside shadow roots.
+- **Element ids** are `stepr-checklist-<n>`, counted per copy of the package.
+  Two separately bundled copies on one page could produce duplicate ids.
+- **Persistence** is `localStorage` only: per origin and browser, not synced
+  across devices or live across tabs. See [Persistence](#persistence).
+- **Page styles can leak in.** The defaults use single-class selectors, so
+  your page rules with higher specificity, such as `.sidebar h2 { … }`, also
+  restyle the widget's heading and buttons. Scope such rules, as the demo
+  does with `.section > h2`.
+- **Rendering needs a DOM.** Importing is safe during server-side rendering,
+  but there is no server-rendered markup.
+
+## Browser support
+
+No browser support matrix has been tested, so no minimum versions are claimed.
+The package is compiled to ES2022 and the widget uses native `<button>`,
+`<progress>`, `:focus-visible`, `accent-color`, `clip-path: inset()` and
+`Element.toggleAttribute`. Check these against your own support targets. The
+no-bundler setup also needs [import maps][import-maps].
+
+Evidence so far (2026-11-14, Linux/WSL2), from an ad-hoc Playwright 1.63
+script that is not part of the repository. It used Playwright's bundled
+**Chromium 153**, **Firefox 155** and **WebKit 26.6**, which are close to but
+not the same as Chrome, Firefox and Safari. In all three, the demo:
+
+- loaded with no console or page errors at 1280, 768, 375 and 320px wide, with
+  no horizontal scrolling and step buttons at least 44px tall
+- moved Tab focus through the four step buttons in order and skipped the
+  text-only step, showing a 2px solid focus outline
+- activated steps with Enter and Space, kept focus on the step after
+  completing it, and updated the progress text
+- completed the Stepr tour step with the keyboard and returned focus to the
+  step afterwards. Escape closed the tour early.
+- restored persisted progress after a reload and cleared it when turned off
+- had no step transition with reduced motion emulated
+- copied an example to the clipboard (Chromium only; the other engines weren't
+  checked)
+
+Not tested: real Chrome, Edge, Safari or Firefox builds, macOS, Windows,
+iOS, Android, touch input, zoom, forced colors / high contrast, and any
+screen reader. See [docs/manual-testing.md](docs/manual-testing.md).
+
 ## Assumptions
 
 - **ESM only.** Published as native ES modules with TypeScript declarations;
@@ -236,12 +498,15 @@ pnpm lint           # ESLint (typescript-eslint, strict type-checked)
 pnpm format         # format with Prettier (pnpm format:check to verify)
 pnpm test           # run tests with Vitest + jsdom (pnpm test:watch for watch mode)
 pnpm build          # compile to dist/ with declarations
+pnpm test:built     # run the demo and README examples against dist/ (jsdom)
 pnpm check:package  # publint + attw + install/import the packed tarball in a clean consumer
 pnpm check          # all of the above, as run in CI
+pnpm demo           # build, then serve the demo at http://localhost:4173/demo/
 ```
 
-`pnpm check:package` requires a prior `pnpm build`. CI runs every check on pull
-requests and pushes to `main`; it never publishes.
+`pnpm test:built` and `pnpm check:package` require a prior `pnpm build`. CI
+runs every check on pull requests and pushes to `main`; it never publishes or
+deploys.
 
 ## Contributing
 
