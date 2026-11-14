@@ -1,0 +1,49 @@
+{
+  "name": "@stepr/checklist",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Lightweight, framework-agnostic onboarding checklist widget for the web.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahlgren1234/stepr-checklist.git"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "build": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint --strict && attw --pack . --profile esm-only && node scripts/smoke-import.mjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm build && pnpm check:package"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "^10.0.1",
+    "eslint": "~10.14.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "publint": "^0.3.25",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  }
+}
