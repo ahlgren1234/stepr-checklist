@@ -2,8 +2,9 @@
 
 Lightweight, framework-agnostic onboarding checklist widget for the web.
 
-> **Status: pre-release scaffolding.** The package is `private` and not published.
-> There is no widget functionality yet, and the public API is **provisional** —
+> **Status: pre-release.** The package is `private` and not published. Only the
+> checklist state controller exists so far (no widget UI yet), and the public
+> API is **provisional** —
 > expect breaking changes until v0.1.0.
 
 ## Intended scope
@@ -13,12 +14,62 @@ checklist widget that works with any framework (or none). Planned work is tracke
 in GitHub issues: checklist state and controller API, optional `localStorage`
 persistence, an accessible DOM renderer, and docs/demo.
 
-The only current export is a placeholder `VERSION` constant used to verify the
-build and consumer import path:
+## Checklist controller
+
+The core is a DOM-free state controller. The widget (planned) will be built on
+top of it; it can also be used directly.
 
 ```ts
-import { VERSION } from '@stepr/checklist';
+import { createChecklistController } from '@stepr/checklist';
+
+const checklist = createChecklistController({
+  steps: [
+    {
+      id: 'profile',
+      label: 'Complete your profile',
+      onClick: (step, checklist) => {
+        openProfileForm(); // completion is up to you:
+        // checklist.complete(step.id);
+      },
+    },
+    { id: 'invite', label: 'Invite a teammate' },
+  ],
+  onChange: (state) => console.log(state.progress), // { completed, total }
+});
+
+checklist.complete('invite'); // true
+checklist.getProgress(); // { completed: 1, total: 2 }
+const unsubscribe = checklist.subscribe((state) => render(state));
 ```
+
+| Method            | Behavior                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `complete(id)`    | Marks a step complete. Returns `true` if state changed, `false` if it was already complete. |
+| `uncomplete(id)`  | Marks a step incomplete. Returns `true` if state changed, `false` if it was not complete.   |
+| `reset()`         | Marks every step incomplete. Returns `true` if anything was complete.                       |
+| `click(id)`       | Calls the step's `onClick(step, checklist)`, if any. **Never changes completion.**          |
+| `isCompleted(id)` | Whether a step is complete.                                                                 |
+| `getProgress()`   | `{ completed, total }`.                                                                     |
+| `getState()`      | Fresh snapshot: `{ steps: [{ id, label, completed }], progress }`, in definition order.     |
+| `subscribe(fn)`   | Calls `fn(state)` after every change. Returns an unsubscribe function.                      |
+
+Behavior details:
+
+- **Step ids** must be non-empty strings, unique within a checklist. Duplicate
+  or empty ids throw when the controller is created.
+- **Unknown ids** passed to `complete`, `uncomplete`, `click` or `isCompleted`
+  throw an `Error` and leave state unchanged.
+- **Repeated actions** (completing a complete step, resetting an empty
+  checklist, …) are no-ops: they return `false` and send no notification.
+- **Empty checklists** are allowed; progress is `{ completed: 0, total: 0 }`.
+- **Notifications** are sent synchronously after each actual change: first
+  `onChange`, then subscribers in subscription order. Listeners added during a
+  notification receive the next one. If listeners throw, the others are still
+  called, then the error is rethrown (an `AggregateError` if several threw);
+  the state change itself is kept.
+- **Instances** are fully independent; there is no shared module state.
+- Steps are copied on creation, and snapshots are fresh objects, so mutating
+  either does not affect the controller. All steps start incomplete.
 
 ## Assumptions
 

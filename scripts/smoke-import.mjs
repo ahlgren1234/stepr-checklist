@@ -43,18 +43,27 @@ try {
 
   writeFileSync(
     join(consumer, 'index.js'),
-    `import { VERSION } from '@stepr/checklist';
-if (typeof VERSION !== 'string') throw new Error('VERSION export missing');
-console.log('runtime import ok:', VERSION);
+    `import { createChecklistController } from '@stepr/checklist';
+const checklist = createChecklistController({ steps: [{ id: 'a', label: 'A' }] });
+checklist.complete('a');
+const { completed, total } = checklist.getProgress();
+if (completed !== 1 || total !== 1) throw new Error('unexpected progress');
+console.log('runtime import ok');
 `,
   );
   run('node', ['index.js'], consumer);
 
   writeFileSync(
     join(consumer, 'index.ts'),
-    `import { VERSION } from '@stepr/checklist';
-const v: string = VERSION;
-export { v };
+    `import {
+  createChecklistController,
+  type ChecklistController,
+  type ChecklistStep,
+} from '@stepr/checklist';
+const steps: ChecklistStep[] = [{ id: 'a', label: 'A' }];
+const checklist: ChecklistController = createChecklistController({ steps });
+const total: number = checklist.getProgress().total;
+export { total };
 `,
   );
   run(
