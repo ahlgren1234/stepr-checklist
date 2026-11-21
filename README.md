@@ -2,7 +2,7 @@
 
 Lightweight, framework-agnostic onboarding checklist widget for the web.
 
-> **Status: v0.1.0, the first public release.** It contains the checklist
+> **Status: v0.1.1, an early release.** It contains the checklist
 > widget, the state controller and optional persistence. Versions follow
 > [semver](https://semver.org/) for 0.x: a **minor** release (0.2.0) may
 > contain breaking changes, a patch release won't. See the
