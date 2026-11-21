@@ -5,6 +5,14 @@ based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project follows [Semantic Versioning](https://semver.org/). While the version
 is 0.x, a minor release may contain breaking changes.
 
+## [0.1.1] - 2026-11-21
+
+### Changed
+
+- The npm `homepage` now points to the live demo,
+  <https://ahlgren1234.github.io/stepr-checklist/>. `repository` and `bugs`
+  still point to GitHub. Metadata only: no code or API changes.
+
 ## [0.1.0] - 2026-11-14
 
 First public release.
@@ -39,4 +47,5 @@ First public release.
 - Steps are fixed at creation; there is no built-in reset or dismiss UI, and
   no automatic dark theme. See [Limitations](README.md#limitations).
 
+[0.1.1]: https://github.com/ahlgren1234/stepr-checklist/releases/tag/v0.1.1
 [0.1.0]: https://github.com/ahlgren1234/stepr-checklist/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 {
   "name": "@stepr/checklist",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lightweight, framework-agnostic onboarding checklist widget for the web.",
   "keywords": [
     "onboarding",
@@ -13,7 +13,7 @@
     "framework-agnostic",
     "vanilla-js"
   ],
-  "homepage": "https://github.com/ahlgren1234/stepr-checklist#readme",
+  "homepage": "https://ahlgren1234.github.io/stepr-checklist/",
   "bugs": "https://github.com/ahlgren1234/stepr-checklist/issues",
   "repository": {
     "type": "git",
